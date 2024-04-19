@@ -15,14 +15,13 @@ use diduhless\parties\listener\SessionListener;
 use pocketmine\command\Command;
 use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\SingletonTrait;
 
 class Parties extends PluginBase {
-
-    static private self $instance;
+    use SingletonTrait;
 
     protected function onLoad(): void {
-        self::$instance = $this;
-        $this->saveDefaultConfig();
+        self::setInstance($this);
     }
 
     protected function onEnable(): void {
@@ -42,9 +41,5 @@ class Parties extends PluginBase {
    public function registerCommand(Command $command): void {
         $this->getServer()->getCommandMap()->register("parties", $command);
    }
-
-    public static function getInstance(): Parties {
-        return self::$instance;
-    }
 
 }

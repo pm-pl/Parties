@@ -34,7 +34,7 @@ public function onPartyInvite(PartyInviteEvent $event): void {
     $session = $event->getSession();
     if($session->isPartyLeader()) {
         foreach($session->getParty()->getMembers() as $member) {
-            $member->getPlayer()->setGamemode(Player::SPECTATOR);
+            $member->getPlayer()->setGamemode(GameMode::SPECTATOR);
         }
     }
 } 
@@ -45,7 +45,7 @@ Allow only players with the permission 'slots.limit' to set the maximum slots to
 public function onUpdateSlots(PartyUpdateSlotsEvent $event): void {
     $session = $event->getSession();
     if(!$session->getPlayer()->hasPermission("slots.limit") and $event->getSlots() > 3) {
-        $event->setCancelled();
+        $event->cancel();
         $session->message("{RED}You do not have permissions to set the maximum slots to more than 3!");
     }
 }
@@ -54,7 +54,7 @@ public function onUpdateSlots(PartyUpdateSlotsEvent $event): void {
 Setting the party public when an operator joins the party:
 ```php
 public function onPartyJoin(PartyJoinEvent $event): void {
-    if($event->getSession()->getPlayer()->isOp()) {
+    if($event->getSession()->getPlayer()->hasPermission(DefaultPermissions::ROOT_OPERATOR)) {
         $event->getParty()->setPublic(true);
     }
 }

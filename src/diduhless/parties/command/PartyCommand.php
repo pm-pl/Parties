@@ -12,7 +12,7 @@ class PartyCommand extends SessionCommand {
         parent::__construct("party", "Opens the party menu or sends a message to the party chat", null, ["p"]);
     }
 
-    public function onCommand(Session $session, array $args) {
+    public function onCommand(Session $session, array $args): void {
         if(isset($args[0])) {
             if($session->hasParty()) {
                 $session->getParty()->sendColoredMessage($session, implode(" ", $args));

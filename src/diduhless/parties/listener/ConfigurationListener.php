@@ -10,10 +10,11 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerCommandPreprocessEvent;
+use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\player\PlayerTransferEvent;
+use pocketmine\event\server\CommandEvent;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\World;
@@ -37,7 +38,7 @@ class ConfigurationListener implements Listener {
         }
     }
 
-    public function onLevelChange(EntityTeleportEvent $event): void {
+    public function onWorldChange(EntityTeleportEvent $event): void {
         $world = $event->getTo()->getWorld();
         if($event->getFrom()->getWorld()->getFolderName() === $world->getFolderName()) {
             return;
@@ -77,15 +78,19 @@ class ConfigurationListener implements Listener {
         }
     }
 
-    public function onCommandPreprocess(PlayerCommandPreprocessEvent $event): void {
+    public function onCommand(CommandEvent $event): void {
         if(!ConfigGetter::areLeaderCommandsEnabled()) {
             return;
         }
-        $command = str_replace("/", "", $event->getMessage());
+        $sender = $event->getSender();
+        if(!$sender instanceof Player) {
+            return;
+        }
+        $command = $event->getCommand();
         if(!in_array($command, ConfigGetter::getSelectedCommands())) {
             return;
         }
-        $session = SessionFactory::getSession($event->getPlayer());
+        $session = SessionFactory::getSession($sender);
         if($session->isPartyLeader()) {
             foreach($session->getParty()->getMembers() as $member) {
                 if(!$member->isPartyLeader()) {
@@ -102,6 +107,15 @@ class ConfigurationListener implements Listener {
                     $event->cancel();
                 }
             }
+        }
+    }
+
+    /**
+     * @handleCancelled
+     */
+    public function onItemUse(PlayerItemUseEvent $event): void {
+        if($event->getItem()->getNamedTag()->getTag("parties") !== null) {
+            SessionFactory::getSession($event->getPlayer())->openPartyForm();
         }
     }
 

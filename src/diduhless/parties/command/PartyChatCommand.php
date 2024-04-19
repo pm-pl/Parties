@@ -12,7 +12,7 @@ class PartyChatCommand extends SessionCommand {
         parent::__construct("pchat", "Toggles the party chat");
     }
 
-    public function onCommand(Session $session, array $args) {
+    public function onCommand(Session $session, array $args): void {
         $party_chat = $session->hasPartyChat();
         if(!$session->hasParty()) {
             $session->message("{RED}You must be in a party to do this!");

@@ -10,9 +10,11 @@ use diduhless\parties\form\PartyMenuForm;
 use diduhless\parties\form\YourPartyForm;
 use diduhless\parties\party\Invitation;
 use diduhless\parties\party\Party;
-use diduhless\parties\party\PartyItem;
 use diduhless\parties\utils\ColorUtils;
+use diduhless\parties\utils\ConfigGetter;
+use pocketmine\item\LegacyStringToItemParser;
 use pocketmine\player\Player;
+use pocketmine\utils\TextFormat;
 
 class Session {
 
@@ -114,7 +116,13 @@ class Session {
     }
 
     public function givePartyItem(int $index): void {
-        $this->getPlayer()->getInventory()->setItem($index, new PartyItem());
+        $values = ConfigGetter::getPartyItemValues();
+
+        $item = LegacyStringToItemParser::getInstance()->parse($values[0] . ":" . $values[1]);
+        $item->setCustomName(TextFormat::GREEN . $values[2]);
+        $item->getNamedTag()->setByte("parties", 1);
+
+        $this->getPlayer()->getInventory()->setItem($index, $item);
     }
 
     public function message(string $message): void {
